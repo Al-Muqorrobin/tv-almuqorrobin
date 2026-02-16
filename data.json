@@ -1,0 +1,34 @@
+{
+  "pengaturan": {
+    "nama_masjid": "MASJID AL-MUQӦRRӦBIN",
+    "alamat_singkat": "Wahana Cikarang, Bekasi",
+    "logo": "",
+    "running_text": "Selamat Datang di Masjid Al-Muqorrobin • Jagalah Kebersihan dan Ketertiban • Mohon HP Dinonaktifkan Saat Sholat Berjamaah",
+    "durasi_iqomah": 10,
+    "wilayah_sholat": "Bekasi",
+    "metode_api": "11"
+  },
+  "taklim": [
+    {
+      "ustadz": "Ustadz Fulan",
+      "judul": "Kajian Kitab Riyadhus Shalihin",
+      "waktu": "Senin, Ba'da Maghrib",
+      "foto": ""
+    }
+  ],
+  "program": [
+    {
+      "judul": "Program Renovasi",
+      "deskripsi": "Mari berinfaq untuk kenyamanan jamaah",
+      "foto": ""
+    }
+  ],
+  "keuangan": [
+    {
+      "kategori": "Kas Operasional",
+      "awal": 1000000,
+      "masuk": 500000,
+      "keluar": 200000
+    }
+  ]
+}
