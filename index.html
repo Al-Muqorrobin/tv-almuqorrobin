@@ -66,89 +66,154 @@
     </footer>
 
     <script>
-// Variabel Global (Default)
-    let config = {
-        nama_masjid: "MASJID",
-        alamat_singkat: "Lokasi",
-        logo: "",
-        running_text: "Memuat data...",
-        durasi_iqomah: 10,
-        wilayah_sholat: "Bekasi",
-        metode_api: "11"
-    };
+        let config = {};
+        let slides = [];
+        let prayerTimes = {};
+        let slideIdx = 0;
 
-    let slidesData = [];
-    let prayerTimes = {};
-
-    async function initApp() {
-        try {
-            // 1. Ambil data dari JSON (GitHub)
-            const res = await fetch('./data.json?t=' + new Date().getTime());
-            const data = await res.json();
-            
-            // 2. Terapkan Pengaturan ke UI
-            if(data.pengaturan) {
-                config = data.pengaturan;
-                document.querySelector('h1').innerText = config.nama_masjid;
-                document.querySelector('p.text-emerald-400').innerText = config.alamat_singkat;
-                document.querySelector('marquee').innerText = config.running_text;
+        async function init() {
+            try {
+                const res = await fetch('./data.json?t=' + Date.now());
+                const data = await res.json();
                 
-                // Update Logo jika ada
+                // 1. Setup Config
+                config = data.pengaturan;
+                document.getElementById('nama-masjid').innerText = config.nama_masjid;
+                document.getElementById('alamat-masjid').innerText = config.alamat_singkat;
+                document.getElementById('running-text').innerText = config.running_text;
                 if(config.logo) {
-                    const logoDiv = document.querySelector('.w-14.h-14');
-                    logoDiv.innerHTML = `<img src="${config.logo}" class="w-full h-full object-contain">`;
-                    logoDiv.classList.remove('bg-emerald-600'); // hapus background ijo emoji
+                    document.getElementById('logo-container').innerHTML = `<img src="${config.logo}" class="w-full h-full object-cover">`;
+                    document.getElementById('logo-container').classList.remove('bg-emerald-600');
                 }
-            }
 
-            // 3. Proses Slide & Jadwal Sholat
-            processData(data);
-            await initPrayerTimes(); // Panggil API Sholat menggunakan config.wilayah_sholat
-            
-            document.getElementById('loading').style.display = 'none';
-        } catch (e) {
-            console.error("Gagal inisialisasi:", e);
+                // 2. Setup Slides
+                slides = [];
+                if(data.taklim) {
+                    for(let i=0; i<data.taklim.length; i+=2) {
+                        slides.push({ type: 'taklim', items: data.taklim.slice(i, i+2) });
+                    }
+                }
+                if(data.program) data.program.forEach(p => slides.push({ type: 'program', data: p }));
+                if(data.keuangan) data.keuangan.forEach(k => slides.push({ type: 'finance', data: k }));
+
+                // 3. Setup Sholat
+                await fetchPrayer();
+                document.getElementById('loading').style.display = 'none';
+            } catch (e) { console.error(e); }
         }
-    }
 
-    async function initPrayerTimes() {
-        // Gunakan variabel dari config hasil download JSON
-        const city = config.wilayah_sholat || 'Bekasi';
-        const method = config.metode_api || '11';
-
-        try {
+        async function fetchPrayer() {
+            const city = config.wilayah_sholat || 'Bekasi';
+            const method = config.metode_api || '11';
             const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Indonesia&method=${method}`);
             const json = await res.json();
-            const d = json.data.timings;
-            
-            prayerTimes = {
-                'imsak': d.Imsak, 'fajr': d.Fajr, 'dhuhr': d.Dhuhr, 
-                'asr': d.Asr, 'maghrib': d.Maghrib, 'isha': d.Isha
-            };
-
-            for (let k in prayerTimes) {
-                document.getElementById('t-' + k).innerText = prayerTimes[k];
-            }
-        } catch(e) { console.error("Err Prayer API"); }
-    }
-
-    // Update fungsi IQOMAH agar menggunakan config.durasi_iqomah
-    function updateClock() {
-        // ... kode jam lainnya sama ...
-        
-        // Di bagian logika Iqomah:
-        const iqDuration = config.durasi_iqomah * 60; // konversi menit ke detik
-        if(diffSince >= 0 && diffSince < iqDuration) {
-            activeIqomah = true;
-            const rem = iqDuration - diffSince;
-            // ... sisa kode timer iqomah ...
+            prayerTimes = json.data.timings;
+            renderPrayerList();
         }
-    }
 
-    // Jalankan Aplikasi
-    initApp(); 
-    setInterval(updateClock, 1000);
-    setInterval(renderSlide, 15000);
-    setInterval(initApp, 300000); // Refresh semua data tiap 5 menit
+        function renderPrayerList() {
+            const list = [
+                { id: 'Fajr', label: 'Subuh' }, { id: 'Dhuhr', label: 'Dzuhur' },
+                { id: 'Asr', label: 'Ashar' }, { id: 'Maghrib', label: 'Maghrib' }, { id: 'Isha', label: 'Isya' }
+            ];
+            document.getElementById('prayer-list').innerHTML = list.map(p => `
+                <div id="card-${p.id}" class="flex justify-between items-center px-6 rounded-2xl glass border border-white/5 flex-1">
+                    <span class="text-xl font-extrabold uppercase">${p.label}</span>
+                    <span class="text-4xl font-black text-yellow-400">${prayerTimes[p.id]}</span>
+                </div>
+            `).join('');
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID', { hour12: false });
+            document.getElementById('date').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' });
+
+            const currS = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            let next = null;
+
+            ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].forEach(id => {
+                const [h, m] = prayerTimes[id].split(':').map(Number);
+                const pS = h * 3600 + m * 60;
+                const card = document.getElementById('card-' + id);
+                card.classList.remove('upcoming-prayer');
+
+                let diff = pS - currS;
+                if(diff > 0 && (!next || diff < next.diff)) next = { id, diff };
+
+                // Iqomah
+                const diffSince = currS - pS;
+                const iqSec = (config.durasi_iqomah || 10) * 60;
+                if(diffSince >= 0 && diffSince < iqSec) {
+                    document.getElementById('iqomah-container').classList.remove('hidden');
+                    const rem = iqSec - diffSince;
+                    const mI = Math.floor(rem/60).toString().padStart(2,'0');
+                    const sI = (rem%60).toString().padStart(2,'0');
+                    document.getElementById('iqomah-timer').innerText = `${mI}:${sI}`;
+                } else {
+                    document.getElementById('iqomah-container').classList.add('hidden');
+                }
+            });
+
+            if(next) {
+                document.getElementById('card-' + next.id).classList.add('upcoming-prayer');
+                const h = Math.floor(next.diff/3600).toString().padStart(2,'0');
+                const m = Math.floor((next.diff%3600)/60).toString().padStart(2,'0');
+                const s = (next.diff%60).toString().padStart(2,'0');
+                document.getElementById('countdown').innerText = `ADZAN: ${h}:${m}:${s}`;
+            }
+        }
+
+        function renderSlide() {
+            const container = document.getElementById('slide-content');
+            const s = slides[slideIdx];
+            if(!s) return;
+
+            container.style.opacity = 0;
+            setTimeout(() => {
+                let html = '';
+                if(s.type === 'taklim') {
+                    html = `<div class="p-8 h-full flex gap-6">` + s.items.map(i => `
+                        <div class="glass flex-1 rounded-[2rem] p-6 flex flex-col items-center justify-center text-center">
+                            <img src="${i.foto || 'https://placehold.co/200'}" class="w-40 h-40 rounded-full object-cover mb-4 border-4 border-emerald-500">
+                            <h3 class="text-3xl font-black">${i.judul}</h3>
+                            <p class="text-emerald-400 text-xl">${i.ustadz}</p>
+                            <div class="mt-4 bg-yellow-400 text-black px-4 py-1 rounded-full font-bold">${i.waktu}</div>
+                        </div>
+                    `).join('') + `</div>`;
+                } else if(s.type === 'program') {
+                    html = `<div class="h-full relative">
+                        <img src="${s.data.foto || 'https://placehold.co/1200x600'}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 glass-dark flex flex-col justify-end p-12">
+                            <h2 class="text-6xl font-black text-yellow-400">${s.data.judul}</h2>
+                            <p class="text-2xl">${s.data.deskripsi}</p>
+                        </div>
+                    </div>`;
+                } else if(s.type === 'finance') {
+                    const total = s.data.awal + s.data.masuk;
+                    const akhir = total - s.data.keluar;
+                    html = `<div class="p-12 h-full flex flex-col justify-center">
+                        <h2 class="text-4xl font-black mb-8 text-emerald-400">LAPORAN KAS: ${s.data.kategori}</h2>
+                        <div class="grid grid-cols-2 gap-6 text-2xl font-bold">
+                            <div class="glass p-6 rounded-2xl">Awal: Rp ${s.data.awal.toLocaleString()}</div>
+                            <div class="glass p-6 rounded-2xl text-emerald-400">Masuk: + Rp ${s.data.masuk.toLocaleString()}</div>
+                            <div class="glass p-6 rounded-2xl text-red-400">Keluar: - Rp ${s.data.keluar.toLocaleString()}</div>
+                            <div class="bg-yellow-400 text-black p-6 rounded-2xl text-4xl font-black">SALDO: Rp ${akhir.toLocaleString()}</div>
+                        </div>
+                    </div>`;
+                }
+                container.innerHTML = html;
+                container.style.opacity = 1;
+                slideIdx = (slideIdx + 1) % slides.length;
+            }, 700);
+        }
+
+        init();
+        setInterval(updateClock, 1000);
+        setInterval(renderSlide, 15000);
+        setInterval(init, 300000);
+    </script>
+</body>
+</html>
 
 
