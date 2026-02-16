@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TV Masjid Al-Muqorrobin</title>
+    <title>TV Masjid Al-Muqorrobin - Full Features</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body, html { margin: 0; padding: 0; min-height: 100vh; font-family: 'Plus Jakarta Sans', sans-serif; background: #010409; color: white; overflow: hidden; }
         .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .glass-dark { background: linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); }
-        .upcoming-prayer { background: linear-gradient(135deg, #064e3b 0%, #059669 100%) !important; border: 2px solid #34d399 !important; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
+        .upcoming-prayer { 
+            background: linear-gradient(135deg, #064e3b 0%, #059669 100%) !important;
+            border: 2px solid #34d399 !important;
+            animation: pulse-green 2s infinite;
+        }
+        @keyframes pulse-green { 0%, 100% { box-shadow: 0 0 0 0px rgba(52, 211, 153, 0.4); } 50% { box-shadow: 0 0 20px 5px rgba(52, 211, 153, 0.2); } }
+        #slide-content-area { transition: opacity 0.6s ease-in-out; }
+        .bar-fill { transition: height 1s ease-out; }
     </style>
 </head>
 <body class="flex flex-col h-screen p-3">
@@ -28,29 +34,34 @@
                 <p id="alamat-masjid" class="text-emerald-400 text-[10px] font-bold tracking-[0.4em] mt-1 uppercase">LOKASI</p>
             </div>
         </div>
-        <div id="iqomah-container" class="hidden text-center bg-white/5 px-8 py-2 rounded-2xl border border-emerald-500/30">
-            <p class="text-[10px] font-black uppercase text-emerald-400">Menuju Iqomah</p>
-            <h2 id="iqomah-timer" class="text-4xl font-black text-white">00:00</h2>
+
+        <div class="flex-grow flex flex-col items-center justify-center">
+            <div id="iqomah-container" class="hidden text-center bg-white/5 px-8 py-2 rounded-2xl border border-emerald-500/30">
+                <p class="text-[10px] font-black uppercase text-emerald-400">Menuju Iqomah</p>
+                <h2 id="iqomah-timer" class="text-4xl font-black text-white">00:00</h2>
+            </div>
         </div>
+
         <div class="flex items-center gap-6">
             <div class="text-right">
                 <div id="date" class="text-xl font-extrabold uppercase mb-1">...</div>
                 <div id="countdown" class="text-yellow-400 text-lg font-black tracking-tighter">--:--:--</div>
             </div>
-            <div id="clock" class="text-7xl font-black text-yellow-400 tabular-nums border-l-4 border-white/10 pl-6">00:00:00</div>
+            <div id="clock" class="text-7xl font-black text-yellow-400 tabular-nums leading-none tracking-tighter border-l-4 border-white/10 pl-6">00:00:00</div>
         </div>
     </header>
 
     <main class="flex-grow flex flex-col lg:flex-row gap-4 overflow-hidden mb-2">
-        <section class="w-full lg:w-[74%] h-full relative rounded-[2.5rem] overflow-hidden glass">
-            <div id="slide-content" class="w-full h-full transition-opacity duration-700"></div>
+        <section class="order-2 lg:order-1 w-full lg:w-[74%] h-full relative rounded-[2.5rem] overflow-hidden glass">
+            <div id="slide-content" class="w-full h-full relative opacity-0"></div>
         </section>
+
         <aside id="prayer-list" class="w-full lg:w-[26%] flex flex-col gap-2 h-full">
             </aside>
     </main>
 
-    <footer class="w-full flex items-center bg-emerald-950/80 rounded-2xl border border-white/10 overflow-hidden shrink-0">
-        <div class="bg-yellow-400 text-black font-black px-6 py-3 text-2xl">INFO</div>
+    <footer class="w-full flex items-center bg-emerald-950/80 rounded-2xl border border-white/10 overflow-hidden shrink-0 shadow-2xl">
+        <div class="bg-yellow-400 text-black font-black px-6 py-3 text-2xl skew-x-[-12deg] -ml-2">INFO</div>
         <marquee id="running-text" scrollamount="6" class="text-3xl font-extrabold text-yellow-400 uppercase">...</marquee>
     </footer>
 
@@ -74,7 +85,7 @@
                     document.getElementById('logo-container').innerHTML = `<img src="${config.logo}" class="w-full h-full object-cover">`;
                     document.getElementById('logo-container').classList.remove('bg-emerald-600');
                 }
-
+        
                 // 2. Setup Slides
                 slides = [];
                 if(data.taklim) {
@@ -153,54 +164,51 @@
             }
         }
 
-        function renderSlide() {
-            const container = document.getElementById('slide-content');
-            const s = slides[slideIdx];
-            if(!s) return;
+        const slides = [
+            { layout: "taklim", items: [
+                { ustadz: "Ustadz WAHYU", judul: "Yasiin & Nashhihul 'Ibad", waktu: "Kamis (Ba'da Maghrib), 18:30 WIB", img: "https://i.pravatar.cc/500?u=1" },
+                { ustadz: "Kyai H. AGUS FATHONI", judul: "Kasifatussaja (Fiqih)", waktu: "Jum'at (Ba'da Maghrib), 18:30 WIB", img: "https://i.pravatar.cc/500?u=2" }
+            ]},
+            { layout: "taklim", items: [
+                { ustadz: "Ustadz WAHYU", judul: "Akidah Islamiyah & Sulamun Taufiq", waktu: "Ahad Pagi (Ba'da Subuh), 05:30 WIB", img: "https://i.pravatar.cc/500?u=3" },
+                { ustadz: "Kyai APEP NURDIN", judul: "Kifayatul Atqiya (Tasawuf)", waktu: "Minggu (Ba'da Isya), 19:30 WIB", img: "https://i.pravatar.cc/500?u=4" }
+            ]},
+            { layout: "program", judul: "TPQ Al-Muqorrobin", desk: "Mencetak generasi qur'ani yang berakhlak mulia dan fasih membaca Al-Qur'an.", img: "https://images.unsplash.com/photo-1584281723351-923f95f9c08a?w=1200" },
+            { layout: "program", judul: "Pembangunan Aula", desk: "Progres pembangunan ruang serbaguna lantai 2.", img: "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?w=1200" },
+            { layout: "finance", sub: "Operasional Masjid", awal: "15.000.000", masuk: "8.500.000", keluar: "3.200.000", akhir: "20.300.000", chart: [60, 85, 40, 70] },
+            { layout: "finance", sub: "Infaq & Pembangunan", awal: "50.000.000", masuk: "12.000.000", keluar: "25.000.000", akhir: "37.000.000", chart: [40, 60, 90, 50] }
+        ];
 
-            container.style.opacity = 0;
+        let idx = 0;
+        function render() {
+            const s = slides[idx]; const area = document.getElementById('slide-content');
+            area.style.opacity = 0;
             setTimeout(() => {
-                let html = '';
-                if(s.type === 'taklim') {
-                    html = `<div class="p-8 h-full flex gap-6">` + s.items.map(i => `
-                        <div class="glass flex-1 rounded-[2rem] p-6 flex flex-col items-center justify-center text-center">
-                            <img src="${i.foto || 'https://placehold.co/200'}" class="w-40 h-40 rounded-full object-cover mb-4 border-4 border-emerald-500">
-                            <h3 class="text-3xl font-black">${i.judul}</h3>
-                            <p class="text-emerald-400 text-xl">${i.ustadz}</p>
-                            <div class="mt-4 bg-yellow-400 text-black px-4 py-1 rounded-full font-bold">${i.waktu}</div>
-                        </div>
-                    `).join('') + `</div>`;
-                } else if(s.type === 'program') {
-                    html = `<div class="h-full relative">
-                        <img src="${s.data.foto || 'https://placehold.co/1200x600'}" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 glass-dark flex flex-col justify-end p-12">
-                            <h2 class="text-6xl font-black text-yellow-400">${s.data.judul}</h2>
-                            <p class="text-2xl">${s.data.deskripsi}</p>
-                        </div>
-                    </div>`;
-                } else if(s.type === 'finance') {
+                if(s.layout === 'taklim') {
+                    let h = `<div class="p-6 h-full flex flex-col justify-center"><div class="flex gap-6 h-[85%]">`;
+                    s.items.forEach(i => { h += `<div class="glass flex-1 flex flex-col items-center justify-between p-6 rounded-[2.5rem] border-b-[8px] border-emerald-600"><img src="${i.img}" class="w-56 h-56 rounded-3xl object-cover border-4 border-white/10 shadow-2xl"><div class="text-center"><h3 class="text-3xl font-black">${i.judul}</h3><p class="text-emerald-400 text-xl font-bold">${i.ustadz}</p><div class="mt-2 bg-white/10 px-4 py-1 rounded-lg text-yellow-400 font-bold uppercase text-sm">${i.waktu}</div></div></div>`; });
+                    area.innerHTML = h + `</div></div>`;
+                } else if(s.layout === 'program') {
+                    area.innerHTML = `<div class="w-full h-full relative"><img src="${s.img}" class="absolute inset-0 w-full h-full object-cover"><div class="absolute inset-0 glass-dark"></div><div class="absolute bottom-12 left-12 right-12"><h2 class="text-6xl font-black text-yellow-400 uppercase mb-2 leading-none">${s.judul}</h2><p class="text-2xl text-slate-100 font-medium">${s.desk}</p></div></div>`;
+                } else {
                     const total = s.data.awal + s.data.masuk;
-                    const akhir = total - s.data.keluar;
-                    html = `<div class="p-12 h-full flex flex-col justify-center">
-                        <h2 class="text-4xl font-black mb-8 text-emerald-400">LAPORAN KAS: ${s.data.kategori}</h2>
-                        <div class="grid grid-cols-2 gap-6 text-2xl font-bold">
-                            <div class="glass p-6 rounded-2xl">Awal: Rp ${s.data.awal.toLocaleString()}</div>
-                            <div class="glass p-6 rounded-2xl text-emerald-400">Masuk: + Rp ${s.data.masuk.toLocaleString()}</div>
-                            <div class="glass p-6 rounded-2xl text-red-400">Keluar: - Rp ${s.data.keluar.toLocaleString()}</div>
-                            <div class="bg-yellow-400 text-black p-6 rounded-2xl text-4xl font-black">SALDO: Rp ${akhir.toLocaleString()}</div>
-                        </div>
-                    </div>`;
+                    const akhir = total - s.data.keluar;                    
+                    area.innerHTML = `<div class="p-10 h-full flex flex-col"><h2 class="text-3xl font-black text-emerald-400 uppercase">LAPORAN KEUANGAN MASJID</h2><p class="text-white/60 uppercase text-xs tracking-widest font-bold mb-6">${s.sub}</p><div class="flex flex-grow gap-8"><div class="w-1/2 flex flex-col justify-center gap-4">
+                        <div class="glass p-5 rounded-xl flex justify-between"><span>Awal</span><span class="font-bold">Rp ${s.data.awal.toLocaleString()}</div>
+                        <div class="glass p-5 rounded-xl flex justify-between text-emerald-400"><span>Masuk</span><span class="font-bold">+ Rp ${s.data.masuk.toLocaleString()}</div>
+                        <div class="glass p-5 rounded-xl flex justify-between text-red-400"><span>Keluar</span><span class="font-bold"> - Rp ${s.data.keluar.toLocaleString()}</div>
+                        <div class="bg-yellow-500 p-6 rounded-xl text-black font-black text-center mt-2 uppercase">SALDO: Rp ${akhir.toLocaleString()}</div>
+                    </div><div class="w-1/2 flex items-end justify-around glass p-6 rounded-3xl">
+                        ${s.chart.map(v => `<div class="w-12 bg-emerald-500 rounded-t-xl bar-fill" style="height:0" data-h="${v}%"></div>`).join('')}
+                    </div></div></div>`;
+                    setTimeout(() => document.querySelectorAll('.bar-fill').forEach(b => b.style.height = b.dataset.h), 100);
                 }
-                container.innerHTML = html;
-                container.style.opacity = 1;
-                slideIdx = (slideIdx + 1) % slides.length;
-            }, 700);
+                area.style.opacity = 1; idx = (idx + 1) % slides.length;
+            }, 600);
         }
 
-        init();
-        setInterval(updateClock, 1000);
-        setInterval(renderSlide, 15000);
-        setInterval(init, 300000);
+        render(); setInterval(render, 15000);
+        setInterval(updateClock, 1000); fetchSholat();
     </script>
 </body>
 </html>
