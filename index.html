@@ -66,7 +66,7 @@
     </footer>
 
     <script>
-        let config = {};
+let config = {};
         let slides = [];
         let prayerTimes = {};
         let slideIdx = 0;
@@ -85,7 +85,7 @@
                     document.getElementById('logo-container').innerHTML = `<img src="${config.logo}" class="w-full h-full object-cover">`;
                     document.getElementById('logo-container').classList.remove('bg-emerald-600');
                 }
-        
+
                 // 2. Setup Slides
                 slides = [];
                 if(data.taklim) {
@@ -164,37 +164,56 @@
             }
         }
 
-        let idx = 0;
-        function render() {
-            const s = slides[idx]; const area = document.getElementById('slide-content');
-            area.style.opacity = 0;
+        function renderSlide() {
+            const container = document.getElementById('slide-content');
+            const s = slides[slideIdx];
+            if(!s) return;
+
+            container.style.opacity = 0;
             setTimeout(() => {
-                if(s.layout === 'taklim') {
-                    let h = `<div class="p-6 h-full flex flex-col justify-center"><div class="flex gap-6 h-[85%]">`;
-                    s.items.forEach(i => { h += `<div class="glass flex-1 flex flex-col items-center justify-between p-6 rounded-[2.5rem] border-b-[8px] border-emerald-600"><img src="${i.img}" class="w-56 h-56 rounded-3xl object-cover border-4 border-white/10 shadow-2xl"><div class="text-center"><h3 class="text-3xl font-black">${i.judul}</h3><p class="text-emerald-400 text-xl font-bold">${i.ustadz}</p><div class="mt-2 bg-white/10 px-4 py-1 rounded-lg text-yellow-400 font-bold uppercase text-sm">${i.waktu}</div></div></div>`; });
-                    area.innerHTML = h + `</div></div>`;
-                } else if(s.layout === 'program') {
-                    area.innerHTML = `<div class="w-full h-full relative"><img src="${s.img}" class="absolute inset-0 w-full h-full object-cover"><div class="absolute inset-0 glass-dark"></div><div class="absolute bottom-12 left-12 right-12"><h2 class="text-6xl font-black text-yellow-400 uppercase mb-2 leading-none">${s.judul}</h2><p class="text-2xl text-slate-100 font-medium">${s.desk}</p></div></div>`;
-                } else {
+                let html = '';
+                if(s.type === 'taklim') {
+                    html = `<div class="p-8 h-full flex gap-6">` + s.items.map(i => `
+                        <div class="glass flex-1 rounded-[2rem] p-6 flex flex-col items-center justify-center text-center">
+                            <img src="${i.foto || 'https://placehold.co/200'}" class="w-40 h-40 rounded-full object-cover mb-4 border-4 border-emerald-500">
+                            <h3 class="text-3xl font-black">${i.judul}</h3>
+                            <p class="text-emerald-400 text-xl">${i.ustadz}</p>
+                            <div class="mt-4 bg-yellow-400 text-black px-4 py-1 rounded-full font-bold">${i.waktu}</div>
+                        </div>
+                    `).join('') + `</div>`;
+                } else if(s.type === 'program') {
+                    html = `<div class="h-full relative">
+                        <img src="${s.data.foto || 'https://placehold.co/1200x600'}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 glass-dark flex flex-col justify-end p-12">
+                            <h2 class="text-6xl font-black text-yellow-400">${s.data.judul}</h2>
+                            <p class="text-2xl">${s.data.deskripsi}</p>
+                        </div>
+                    </div>`;
+                } else if(s.type === 'finance') {
                     const total = s.data.awal + s.data.masuk;
-                    const akhir = total - s.data.keluar;                    
-                    area.innerHTML = `<div class="p-10 h-full flex flex-col"><h2 class="text-3xl font-black text-emerald-400 uppercase">LAPORAN KEUANGAN MASJID</h2><p class="text-white/60 uppercase text-xs tracking-widest font-bold mb-6">${s.sub}</p><div class="flex flex-grow gap-8"><div class="w-1/2 flex flex-col justify-center gap-4">
-                        <div class="glass p-5 rounded-xl flex justify-between"><span>Awal</span><span class="font-bold">Rp ${s.data.awal.toLocaleString()}</div>
-                        <div class="glass p-5 rounded-xl flex justify-between text-emerald-400"><span>Masuk</span><span class="font-bold">+ Rp ${s.data.masuk.toLocaleString()}</div>
-                        <div class="glass p-5 rounded-xl flex justify-between text-red-400"><span>Keluar</span><span class="font-bold"> - Rp ${s.data.keluar.toLocaleString()}</div>
-                        <div class="bg-yellow-500 p-6 rounded-xl text-black font-black text-center mt-2 uppercase">SALDO: Rp ${akhir.toLocaleString()}</div>
-                    </div><div class="w-1/2 flex items-end justify-around glass p-6 rounded-3xl">
-                        ${s.chart.map(v => `<div class="w-12 bg-emerald-500 rounded-t-xl bar-fill" style="height:0" data-h="${v}%"></div>`).join('')}
-                    </div></div></div>`;
-                    setTimeout(() => document.querySelectorAll('.bar-fill').forEach(b => b.style.height = b.dataset.h), 100);
+                    const akhir = total - s.data.keluar;
+                    html = `<div class="p-12 h-full flex flex-col justify-center">
+                        <h2 class="text-4xl font-black mb-8 text-emerald-400">LAPORAN KAS: ${s.data.kategori}</h2>
+                        <div class="grid grid-cols-2 gap-6 text-2xl font-bold">
+                            <div class="glass p-6 rounded-2xl">Awal: Rp ${s.data.awal.toLocaleString()}</div>
+                            <div class="glass p-6 rounded-2xl text-emerald-400">Masuk: + Rp ${s.data.masuk.toLocaleString()}</div>
+                            <div class="glass p-6 rounded-2xl text-red-400">Keluar: - Rp ${s.data.keluar.toLocaleString()}</div>
+                            <div class="bg-yellow-400 text-black p-6 rounded-2xl text-4xl font-black">SALDO: Rp ${akhir.toLocaleString()}</div>
+                        </div>
+                    </div>`;
                 }
-                area.style.opacity = 1; idx = (idx + 1) % slides.length;
-            }, 600);
+                container.innerHTML = html;
+                container.style.opacity = 1;
+                slideIdx = (slideIdx + 1) % slides.length;
+            }, 700);
         }
 
-        render(); setInterval(render, 15000);
-        setInterval(updateClock, 1000); fetchSholat();
+        init();
+        setInterval(updateClock, 1000);
+        setInterval(renderSlide, 15000);
+        setInterval(init, 300000);
     </script>
 </body>
 </html>
+
 
