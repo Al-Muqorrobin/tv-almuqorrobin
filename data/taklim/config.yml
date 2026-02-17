@@ -1,0 +1,61 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: "pengaturan"
+    label: "⚙️ Pengaturan Utama"
+    files:
+      - name: "umum"
+        label: "Sistem & Identitas"
+        file: "data.json"
+        fields:
+          - {label: "Nama Masjid", name: "nama_masjid", widget: "string"}
+          - {label: "Alamat/Lokasi Singkat", name: "alamat_singkat", widget: "string"}
+          - {label: "Logo Masjid", name: "logo", widget: "image", required: false}
+          - {label: "Running Text (Info Bawah)", name: "running_text", widget: "text"}
+          - {label: "Durasi Iqomah (Menit)", name: "durasi_iqomah", widget: "number", value_type: "int"}
+          - {label: "Wilayah Sholat (Kota)", name: "wilayah_sholat", widget: "string"}
+          - {label: "ID Metode Sholat API", name: "metode_api", widget: "string", default: "11"}
+
+  - name: "taklim"
+    label: "📖 Jadwal Taklim"
+    folder: "data/taklim" # Opsional jika ingin dipisah, tapi di sini kita pakai file tunggal
+    file: "data.json"
+    fields:
+      - label: "Daftar Taklim"
+        name: "taklim"
+        widget: "list"
+        fields:
+          - {label: "Nama Ustadz", name: "ustadz", widget: "string"}
+          - {label: "Judul Kajian", name: "judul", widget: "string"}
+          - {label: "Waktu", name: "waktu", widget: "string"}
+          - {label: "Foto Ustadz", name: "foto", widget: "image", required: false}
+
+  - name: "program"
+    label: "📅 Program & Info"
+    file: "data.json"
+    fields:
+      - label: "Daftar Program"
+        name: "program"
+        widget: "list"
+        fields:
+          - {label: "Judul Program", name: "judul", widget: "string"}
+          - {label: "Deskripsi", name: "deskripsi", widget: "text"}
+          - {label: "Foto Background", name: "foto", widget: "image", required: false}
+
+  - name: "keuangan"
+    label: "💰 Laporan Keuangan"
+    file: "data.json"
+    fields:
+      - label: "Daftar Laporan"
+        name: "keuangan"
+        widget: "list"
+        fields:
+          - {label: "Kategori", name: "kategori", widget: "string"}
+          - {label: "Saldo Awal", name: "awal", widget: "number", value_type: "int"}
+          - {label: "Pemasukan", name: "masuk", widget: "number", value_type: "int"}
+          - {label: "Pengeluaran", name: "keluar", widget: "number", value_type: "int"}
