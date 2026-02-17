@@ -23,7 +23,7 @@ collections:
 
   - name: "taklim"
     label: "📖 Jadwal Taklim"
-    folder: "data/taklim" # Opsional jika ingin dipisah, tapi di sini kita pakai file tunggal
+    folder: "taklim" # Opsional jika ingin dipisah, tapi di sini kita pakai file tunggal
     file: "data.json"
     fields:
       - label: "Daftar Taklim"
@@ -58,4 +58,5 @@ collections:
           - {label: "Kategori", name: "kategori", widget: "string"}
           - {label: "Saldo Awal", name: "awal", widget: "number", value_type: "int"}
           - {label: "Pemasukan", name: "masuk", widget: "number", value_type: "int"}
+
           - {label: "Pengeluaran", name: "keluar", widget: "number", value_type: "int"}
