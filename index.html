@@ -200,9 +200,21 @@
         setInterval(updateClock, 1000);
         setInterval(renderSlide, 15000);
         setInterval(init, 300000);
-    </script>
+        
+    <script>
+  if (window.netlifyIdentity) {
+    window.netlifyIdentity.on("init", user => {
+      if (!user) {
+        window.netlifyIdentity.on("login", () => {
+          document.location.href = "/admin/";
+        });
+      }
+    });
+  }
+</script>
 </body>
 </html>
+
 
 
 
