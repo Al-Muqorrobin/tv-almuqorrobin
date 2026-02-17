@@ -160,14 +160,12 @@
 
             container.style.opacity = 0;
             setTimeout(() => {
-                let html = '';
-                if(s.type === 'taklim') {
-                    html = `<div class="p-6 h-full flex flex-col justify-center"><div class="flex gap-6 h-[85%]">`+ s.items.map(i => `
-                        <div class="glass flex-1 flex flex-col items-center justify-between p-6 rounded-[2.5rem] border-b-[8px] border-emerald-600">
-                            <img src="${i.foto || 'https://placehold.co/200'}" class="w-56 h-56 rounded-3xl object-cover border-4 border-white/10 shadow-2xl"><div class="text-center">
+                html = `<div class="p-8 h-full flex gap-6">` + s.items.map(i => `
+                        <div class="glass flex-1 rounded-[2rem] p-6 flex flex-col items-center justify-center text-center">
+                            <img src="${i.foto || 'https://placehold.co/200'}" class="w-40 h-40 rounded-full object-cover mb-4 border-4 border-emerald-500">
                             <h3 class="text-3xl font-black">${i.judul}</h3>
-                            <p class="text-emerald-400 text-xl font-bold">${i.ustadz}</p>
-                            <div class="mt-2 bg-white/10 px-4 py-1 rounded-lg text-yellow-400 font-bold uppercase text-sm">${i.waktu}</div>
+                            <p class="text-emerald-400 text-xl">${i.ustadz}</p>
+                            <div class="mt-4 bg-yellow-400 text-black px-4 py-1 rounded-full font-bold">${i.waktu}</div>
                         </div>
                     `).join('') + `</div>`;
                 } else if(s.type === 'program') {
@@ -205,6 +203,7 @@
     </script>
 </body>
 </html>
+
 
 
 
